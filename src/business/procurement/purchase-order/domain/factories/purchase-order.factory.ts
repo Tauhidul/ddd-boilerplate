@@ -1,0 +1,50 @@
+import { invariantRegistry } from '@business/shared-business/domain/registries/invariant.registry';
+import { PurchaseOrder } from '../aggregates/purchase-order.aggregate';
+import { PurchaseOrderProps } from '../types/purchase-order.types';
+import { PurchaseOrderStatus } from '../types/purchase-order.enum';
+import { CreatePurchaseOrderInput } from '../types/purchase-order.types';
+import { PurchaseOrderId } from '../value-objects/purchase-order-id.vo';
+import { OrderNumber, VendorIdRef } from '../value-objects/purchase-order.vos';
+import { PurchaseOrderCreated } from '../events/purchase-order.created.event';
+import './../aggregates/purchase-order.invariants';
+import '../entities/purchase-order-line.invariants';
+import '../value-objects/order-number.invariants';
+import './../policies/approval.policy';
+
+export class PurchaseOrderFactory {
+  static create(input: CreatePurchaseOrderInput): PurchaseOrder {
+    invariantRegistry.enforce('purchase-order.create', {
+      orderNumber: input.orderNumber,
+    });
+
+    invariantRegistry.enforce('order-number.create', { orderNumber: input.orderNumber });
+
+    const now = new Date();
+    const purchaseOrder = PurchaseOrder.instantiate(
+      PurchaseOrderId.generate(),
+      {
+        orderNumber: OrderNumber.create(input.orderNumber),
+        vendorId: new VendorIdRef(input.vendorId),
+        status: PurchaseOrderStatus.DRAFT,
+        currency: input.currency ?? 'USD',
+        lines: [],
+        createdAt: now,
+        updatedAt: now,
+      },
+      1,
+    );
+
+    purchaseOrder.addEvent(
+      new PurchaseOrderCreated(purchaseOrder.id, purchaseOrder.orderNumber, input.vendorId),
+    );
+    return purchaseOrder;
+  }
+
+  static reconstitute(
+    id: PurchaseOrderId,
+    props: PurchaseOrderProps,
+    version: number,
+  ): PurchaseOrder {
+    return PurchaseOrder.instantiate(id, props, version);
+  }
+}

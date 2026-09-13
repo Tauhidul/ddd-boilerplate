@@ -1,0 +1,21 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { IntegrationMessage } from '@platform/messaging/ports/message-publisher.port';
+
+const EXCHANGE = 'erp.events';
+const QUEUE = 'purchase-order-created.erp';
+
+@Injectable()
+export class PurchaseOrderRabbitMQListener {
+  private readonly logger = new Logger(PurchaseOrderRabbitMQListener.name);
+
+  @RabbitSubscribe({
+    exchange: EXCHANGE,
+    routingKey: 'PurchaseOrderCreated',
+    queue: QUEUE,
+    queueOptions: { durable: true },
+  })
+  onPurchaseOrderCreated(message: IntegrationMessage): void {
+    this.logger.log(`[RabbitMQ] PurchaseOrderCreated received for ${message.aggregateId}`);
+  }
+}
