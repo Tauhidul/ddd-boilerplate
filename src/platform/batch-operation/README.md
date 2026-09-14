@@ -81,13 +81,13 @@ via a batch is indistinguishable from one moved by hand. See
 
 ## Codebase adaptations vs the design doc
 
-| Design doc | Here |
-|---|---|
-| TypeORM | Prisma via `TransactionHost` |
-| `BatchOperationModule.forRoot/forHandler` | providers live in `batch-operation.module.ts`; the aggregate module registers on `BatchOperationHandlerRegistry` at bootstrap |
-| `job_no` generator | `NumberingPort` sequence `batch-operation-job`, prefix `BATCH-` |
-| BullMQ chunk queue | `BullMqBatchOperationQueuePublisher` + `BullMqBatchOperationWorker` (same pattern as scheduler); Sync still calls `BatchOperationWorker.processChunk` in-process |
-| Job-completed notification | `BatchOperationJobOutboxWriterPort` → transactional outbox |
+| Design doc                                | Here                                                                                                                                                             |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TypeORM                                   | Prisma via `TransactionHost`                                                                                                                                     |
+| `BatchOperationModule.forRoot/forHandler` | providers live in `batch-operation.module.ts`; the aggregate module registers on `BatchOperationHandlerRegistry` at bootstrap                                    |
+| `job_no` generator                        | `NumberingPort` sequence `batch-operation-job`, prefix `BATCH-`                                                                                                  |
+| BullMQ chunk queue                        | `BullMqBatchOperationQueuePublisher` + `BullMqBatchOperationWorker` (same pattern as scheduler); Sync still calls `BatchOperationWorker.processChunk` in-process |
+| Job-completed notification                | `BatchOperationJobOutboxWriterPort` → transactional outbox                                                                                                       |
 
 ## Not yet built (design "OPEN" items)
 

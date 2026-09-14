@@ -21,10 +21,10 @@ http/                              generic /import routes + Zod request DTOs
 
 ## Messaging
 
-| Plane | Tech | Role |
-|---|---|---|
-| Work | BullMQ `import.jobs` | parse → validate → execute |
-| Integration | Outbox → RabbitMQ | terminal job events |
+| Plane       | Tech                 | Role                       |
+| ----------- | -------------------- | -------------------------- |
+| Work        | BullMQ `import.jobs` | parse → validate → execute |
+| Integration | Outbox → RabbitMQ    | terminal job events        |
 
 ## Onboarding
 

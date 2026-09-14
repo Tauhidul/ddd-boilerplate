@@ -29,12 +29,12 @@ http/          admin controllers + Zod request DTOs
 
 ## Open-decision defaults
 
-| Topic | Default |
-|-------|---------|
-| Missed Cron | skip-to-next |
-| Missed External | catch-up (leave due for next tick) |
-| Cron edit | recompute `nextRunAt` immediately |
-| Edit audit | module-local `scheduled_job_edit_log` |
+| Topic           | Default                               |
+| --------------- | ------------------------------------- |
+| Missed Cron     | skip-to-next                          |
+| Missed External | catch-up (leave due for next tick)    |
+| Cron edit       | recompute `nextRunAt` immediately     |
+| Edit audit      | module-local `scheduled_job_edit_log` |
 
 ## Ports
 
