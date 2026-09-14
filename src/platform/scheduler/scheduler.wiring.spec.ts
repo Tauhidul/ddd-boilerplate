@@ -1,19 +1,19 @@
-import { SchedulerPortFacade } from './usecases/scheduler-port.facade';
-import { RegisterScheduledJobPort } from './ports/register-scheduled-job.port';
-import { CancelScheduledJobPort } from './ports/cancel-scheduled-job.port';
-import { RescheduleExternalJobPort } from './ports/reschedule-external-job.port';
+import { SchedulerAdapter } from './adapters/scheduler.adapter';
+import { RegisterScheduledJobUseCase } from './usecases/register-scheduled-job.usecase';
+import { CancelScheduledJobUseCase } from './usecases/cancel-scheduled-job.usecase';
+import { RescheduleExternalJobUseCase } from './usecases/reschedule-external-job.usecase';
 import { JobScope, ScheduleMode } from './scheduler.types';
 import { ScheduledJobHandlerRegistry } from './scheduled-job-handler.registry';
 
 describe('scheduler wiring smoke', () => {
-  it('SchedulerPortFacade maps schedule to AGGREGATE + EXTERNAL register', async () => {
+  it('SchedulerAdapter maps schedule to AGGREGATE + EXTERNAL register', async () => {
     const execute = jest.fn().mockResolvedValue('job-id');
-    const register = { execute } as unknown as RegisterScheduledJobPort;
-    const cancel = {} as CancelScheduledJobPort;
-    const reschedule = {} as RescheduleExternalJobPort;
+    const registerUseCase = { execute } as unknown as RegisterScheduledJobUseCase;
+    const cancelUseCase = {} as CancelScheduledJobUseCase;
+    const rescheduleUseCase = {} as RescheduleExternalJobUseCase;
 
-    const facade = new SchedulerPortFacade(register, cancel, reschedule);
-    const id = await facade.schedule({
+    const adapter = new SchedulerAdapter(registerUseCase, cancelUseCase, rescheduleUseCase);
+    const id = await adapter.schedule({
       jobType: 'Recurring',
       aggregateType: 'RecurringTemplate',
       aggregateId: 'agg-1',

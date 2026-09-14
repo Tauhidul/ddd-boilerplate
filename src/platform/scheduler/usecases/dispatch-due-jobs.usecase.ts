@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { ConfigService } from '@config/config.service';
-import { DispatchDueJobsPort } from '../ports/dispatch-due-jobs.port';
 import { ScheduledJobRepositoryPort } from '../ports/scheduled-job-repository.port';
 import { DistributedLockPort } from '../ports/distributed-lock.port';
 import { SchedulerJobQueuePort } from '../ports/scheduler-job-queue.port';
@@ -13,7 +12,7 @@ import { markSchedulerTickSuccess } from './get-scheduler-health-metrics.usecase
 const DEFAULT_TIME_BUDGET_MS = 25_000;
 
 @Injectable()
-export class DispatchDueJobsUseCase implements DispatchDueJobsPort {
+export class DispatchDueJobsUseCase {
   private readonly logger = new Logger(DispatchDueJobsUseCase.name);
 
   constructor(

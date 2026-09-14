@@ -15,7 +15,7 @@ import { CreateRecurringTemplateUseCase } from './usecases/create-recurring-temp
 import { GetRecurringTemplateUseCase } from './usecases/get-recurring-template.usecase';
 import { ListRecurringTemplatesUseCase } from './usecases/list-recurring-templates.usecase';
 import { PauseRecurringTemplateUseCase } from './usecases/pause-recurring-template.usecase';
-import { RecurringExecutionFacade } from './usecases/recurring-execution.facade';
+import { RecurringExecutionAdapter } from './adapters/recurring-execution.adapter';
 import { ResumeRecurringTemplateUseCase } from './usecases/resume-recurring-template.usecase';
 import { PrismaRecurringExecutionRepository } from './adapters/prisma-recurring-execution.repository';
 import { PrismaRecurringTemplateRepository } from './adapters/prisma-recurring-template.repository';
@@ -44,8 +44,8 @@ import './events/recurring.registry';
       useExisting: PrismaRecurringExecutionRepository,
     },
     RecurringGenerationHandler,
-    RecurringExecutionFacade,
-    { provide: RecurringExecutionPort, useExisting: RecurringExecutionFacade },
+    RecurringExecutionAdapter,
+    { provide: RecurringExecutionPort, useExisting: RecurringExecutionAdapter },
     DomainEventDispatcher,
     CreateRecurringTemplateUseCase,
     PauseRecurringTemplateUseCase,

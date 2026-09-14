@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { KeyedRegistryBase } from '@shared-kernel/utils/keyed-registry.base';
 import { ImportHandler } from './ports/import-handler.port';
 import { ImportDescriptor } from './import.types';
 import {
@@ -20,15 +21,13 @@ interface RegisteredEntry {
  * component resolves through this and never branches on entityKey itself.
  */
 @Injectable()
-export class ImportHandlerRegistry {
-  private readonly entries = new Map<string, RegisteredEntry>();
-
+export class ImportHandlerRegistry extends KeyedRegistryBase<RegisteredEntry> {
   /**
    * Called once per entityKey at boot. Validates the descriptor here so a
    * malformed field list fails the build, not the first import that hits it.
    */
   register(entityKey: string, descriptor: ImportDescriptor, handler: ImportHandler): void {
-    if (this.entries.has(entityKey)) {
+    if (this.has(entityKey)) {
       throw new DuplicateImportHandlerRegistrationError(entityKey);
     }
 
@@ -62,11 +61,7 @@ export class ImportHandlerRegistry {
   }
 
   private entry(entityKey: string): RegisteredEntry {
-    const entry = this.entries.get(entityKey);
-    if (!entry) {
-      throw new UnregisteredImportHandlerError(entityKey);
-    }
-    return entry;
+    return this.requireEntry(entityKey, () => new UnregisteredImportHandlerError(entityKey));
   }
 
   private assertDescriptorValid(entityKey: string, descriptor: ImportDescriptor): void {

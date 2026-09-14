@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { PageResult, buildPageResult } from '@shared-kernel/types/pagination';
+import { toPrismaJson } from '@shared-kernel/utils/prisma-json.util';
 import { ImportJobRepositoryPort } from '../ports/import-job-repository.port';
 import {
   ColumnMapping,
@@ -64,10 +65,10 @@ export class PrismaImportJobRepository implements ImportJobRepositoryPort {
         entityKey: job.entityKey,
         status: 'UPLOADED',
         descriptorVersion: job.descriptorVersion,
-        descriptorSnapshot: toJsonInput(job.descriptorSnapshot),
-        statusHistory: toJsonInput(history),
+        descriptorSnapshot: toPrismaJson(job.descriptorSnapshot) as object,
+        statusHistory: toPrismaJson(history) as object,
         sourceStorageObjectId: job.sourceStorageObjectId,
-        options: toJsonInput(job.options ?? {}),
+        options: toPrismaJson(job.options ?? {}) as object,
         requestedBy: job.requestedBy ?? null,
         traceId: job.traceId ?? null,
         buildSha: job.buildSha ?? null,
@@ -131,7 +132,7 @@ export class PrismaImportJobRepository implements ImportJobRepositoryPort {
     const saved = await this.txHost.tx.importJob.update({
       where: { id: jobId },
       data: {
-        statusHistory: toJsonInput(historyList),
+        statusHistory: toPrismaJson(historyList),
         version: { increment: 1 },
         ...(to === 'PARSING' || to === 'VALIDATING' || to === 'EXECUTING'
           ? { heartbeatAt: new Date() }
@@ -145,7 +146,7 @@ export class PrismaImportJobRepository implements ImportJobRepositoryPort {
     const saved = await this.txHost.tx.importJob.update({
       where: { id: jobId },
       data: {
-        columnMapping: toJsonInput(mapping),
+        columnMapping: toPrismaJson(mapping),
         version: { increment: 1 },
       },
     });
@@ -202,7 +203,7 @@ export class PrismaImportJobRepository implements ImportJobRepositoryPort {
       where: { id: jobId },
       data: {
         status,
-        statusHistory: toJsonInput(historyList),
+        statusHistory: toPrismaJson(historyList),
         completedAt: new Date(),
         lockedUntil: null,
         lockedBy: null,
@@ -259,7 +260,4 @@ function mapJob(row: JobRow): ImportJobRecord {
     updatedAt: row.updatedAt,
     completedAt: row.completedAt ?? undefined,
   };
-}
-function toJsonInput(value: unknown): object {
-  return JSON.parse(JSON.stringify(value)) as object;
 }

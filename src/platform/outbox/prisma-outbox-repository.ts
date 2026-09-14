@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { IntegrationMessage } from '@platform/messaging/ports/message-publisher.port';
+import { toPrismaJson } from '@shared-kernel/utils/prisma-json.util';
 
 export interface OutboxMessageRecord {
   id: string;
@@ -38,7 +39,7 @@ export class PrismaOutboxRepository extends OutboxRepository {
         eventType: message.eventType,
         aggregateType: message.aggregateType,
         aggregateId: message.aggregateId,
-        payload: toPrismaJson(message.payload),
+        payload: toPrismaJson(message.payload) as object,
         headers: message.headers ? toPrismaJson(message.headers) : undefined,
         occurredAt: message.occurredAt,
         status: 'PENDING',
@@ -120,8 +121,4 @@ export class PrismaOutboxRepository extends OutboxRepository {
       status: row.status as OutboxMessageRecord['status'],
     };
   }
-}
-
-function toPrismaJson(value: Record<string, unknown>): object {
-  return JSON.parse(JSON.stringify(value)) as object;
 }

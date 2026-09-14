@@ -5,7 +5,6 @@ import { BatchOperationHandlerRegistry } from '../batch-operation-handler.regist
 import { BatchOperationWorker } from '../batch-operation.worker';
 import { BatchOperationJobRepositoryPort } from '../ports/batch-operation-job-repository.port';
 import { BatchOperationQueuePublisherPort } from '../ports/batch-operation-queue-publisher.port';
-import { CreateBatchOperationJobPort } from '../ports/create-batch-operation-job.port';
 import { BatchSelectionTooLargeError, EmptyBatchSelectionError } from '../batch-operation.errors';
 import {
   BatchOperationDispatch,
@@ -22,7 +21,7 @@ const JOB_NUMBER_SEQUENCE = 'batch-operation-job';
  * then dispatches. Never interprets what operationCode does.
  */
 @Injectable()
-export class CreateBatchOperationJobUseCase implements CreateBatchOperationJobPort {
+export class CreateBatchOperationJobUseCase {
   constructor(
     private readonly repository: BatchOperationJobRepositoryPort,
     private readonly registry: BatchOperationHandlerRegistry,

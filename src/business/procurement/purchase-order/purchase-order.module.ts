@@ -11,21 +11,39 @@ import { RemovePurchaseOrderLineUseCase } from './application/usecases/remove-pu
 import { PurchaseOrderTransitionUseCase } from './application/usecases/purchase-order-transition.usecase';
 import { GetPurchaseOrderUseCase } from './application/usecases/get-purchase-order.usecase';
 import { ListPurchaseOrdersUseCase } from './application/usecases/list-purchase-orders.usecase';
+<<<<<<< HEAD
+=======
+import { CreateRecurringPurchaseOrderUseCase } from './application/usecases/create-recurring-purchase-order.usecase';
+import { CreateRecurringFromPurchaseOrderUseCase } from './application/usecases/create-recurring-from-purchase-order.usecase';
+import { GenerateRecurringPurchaseOrderUseCase } from './application/usecases/generate-recurring-purchase-order.usecase';
+>>>>>>> origin2/dev-v1
 import { PurchaseOrderEventEmitterListener } from './application/integrations/listeners/purchase-order.created.event-emitter.listener-event';
 import { PurchaseOrderKafkaListener } from './application/integrations/listeners/purchase-order.created.kafka.listener-event';
 import { PurchaseOrderRabbitMQListener } from './application/integrations/listeners/purchase-order.created.rabbitmq.listener-event';
 import { PurchaseOrderSqsListener } from './application/integrations/listeners/purchase-order.sqs.listener-event';
+<<<<<<< HEAD
+=======
+import { RecurringOccurrenceRequestedRabbitMQListener } from './application/integrations/listeners/recurring-occurrence-requested.rabbitmq.listener-event';
+>>>>>>> origin2/dev-v1
 import { PurchaseOrderCommandRepository } from './domain/repositories/purchase-order-command.repository';
 import { PurchaseOrderQuery } from './application/queries/purchase-order.query';
 import { PurchaseOrderIntegrationPort } from './application/integrations/publishes/purchase-order.integration-port';
 import { PurchasableProductPort } from './application/outbound-ports/product-query.port';
 import { OrderableVendorPort } from './application/outbound-ports/vendor-query.port';
 import { CompanyConfigPort } from './application/outbound-ports/company-config.port';
+<<<<<<< HEAD
+=======
+import { NumberingPort } from './application/outbound-ports/numbering.port';
+>>>>>>> origin2/dev-v1
 import { PurchaseOrderForGrnPort } from '@business/procurement/purchase-order/public';
 import { PrismaPurchaseOrderCommandRepository } from './infrastructure/persistence/prisma-purchase-order-command.repository';
 import { PrismaPurchaseOrderQueryRepository } from './infrastructure/persistence/prisma-purchase-order-query.repository';
 import { OutboxAdapter } from './infrastructure/adapters/platform/outbox.adapter';
 import { CompanyConfigAdapter } from './infrastructure/adapters/platform/company-config.adapter';
+<<<<<<< HEAD
+=======
+import { NumberingAdapter } from './infrastructure/adapters/platform/numbering.adapter';
+>>>>>>> origin2/dev-v1
 import { PurchasableProductAdapter } from './infrastructure/adapters/module/purchasable-product.adapter';
 import { OrderableVendorAdapter } from './infrastructure/adapters/module/orderable-vendor.adapter';
 import './domain/events/purchase-order.registry';
@@ -42,16 +60,30 @@ import { PurchaseOrderBatchOperationAdapter } from './infrastructure/adapters/pl
     PurchaseOrderTransitionUseCase,
     GetPurchaseOrderUseCase,
     ListPurchaseOrdersUseCase,
+<<<<<<< HEAD
+=======
+    CreateRecurringPurchaseOrderUseCase,
+    CreateRecurringFromPurchaseOrderUseCase,
+    GenerateRecurringPurchaseOrderUseCase,
+>>>>>>> origin2/dev-v1
     PurchaseOrderEventEmitterListener,
     PurchaseOrderRabbitMQListener,
     PurchaseOrderKafkaListener,
     PurchaseOrderSqsListener,
+<<<<<<< HEAD
+=======
+    RecurringOccurrenceRequestedRabbitMQListener,
+>>>>>>> origin2/dev-v1
     PurchaseOrderForGrnFacade,
     { provide: PurchaseOrderForGrnPort, useExisting: PurchaseOrderForGrnFacade },
     { provide: PurchaseOrderCommandRepository, useClass: PrismaPurchaseOrderCommandRepository },
     { provide: PurchaseOrderQuery, useClass: PrismaPurchaseOrderQueryRepository },
     { provide: PurchaseOrderIntegrationPort, useClass: OutboxAdapter },
     { provide: CompanyConfigPort, useClass: CompanyConfigAdapter },
+<<<<<<< HEAD
+=======
+    { provide: NumberingPort, useClass: NumberingAdapter },
+>>>>>>> origin2/dev-v1
     { provide: PurchasableProductPort, useClass: PurchasableProductAdapter },
     { provide: OrderableVendorPort, useClass: OrderableVendorAdapter },
   ],

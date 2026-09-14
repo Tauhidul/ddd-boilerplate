@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { GetSchedulerHealthMetricsPort } from '../ports/get-scheduler-health-metrics.port';
 import { ScheduledJobRepositoryPort } from '../ports/scheduled-job-repository.port';
 import { ScheduledJobDispatchLogRepositoryPort } from '../ports/scheduled-job-dispatch-log-repository.port';
 import { SchedulerHealthMetrics } from '../scheduler.types';
@@ -12,7 +11,7 @@ export function markSchedulerTickSuccess(at: Date = new Date()): void {
 }
 
 @Injectable()
-export class GetSchedulerHealthMetricsUseCase implements GetSchedulerHealthMetricsPort {
+export class GetSchedulerHealthMetricsUseCase {
   constructor(
     private readonly jobs: ScheduledJobRepositoryPort,
 

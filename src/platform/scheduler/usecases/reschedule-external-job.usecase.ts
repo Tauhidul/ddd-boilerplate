@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { RescheduleExternalJobPort } from '../ports/reschedule-external-job.port';
 import { ScheduledJobRepositoryPort } from '../ports/scheduled-job-repository.port';
 
 @Injectable()
-export class RescheduleExternalJobUseCase implements RescheduleExternalJobPort {
+export class RescheduleExternalJobUseCase {
   constructor(private readonly jobs: ScheduledJobRepositoryPort) {}
 
   execute(jobId: string, nextRunAt: Date): Promise<void> {

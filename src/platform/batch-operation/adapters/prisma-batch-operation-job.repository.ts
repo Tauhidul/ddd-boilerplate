@@ -2,6 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { PageResult } from '@shared-kernel/types/pagination';
+<<<<<<< HEAD
+=======
+import { toPrismaJson } from '@shared-kernel/utils/prisma-json.util';
+>>>>>>> origin2/dev-v1
 import { BatchOperationJobRepositoryPort } from '../ports/batch-operation-job-repository.port';
 import { BatchOperationJobRowRepositoryPort } from '../ports/batch-operation-job-row-repository.port';
 import {
@@ -12,7 +16,11 @@ import {
   ClaimedBatchOperationRow,
   NewBatchOperationJob,
 } from '../batch-operation.types';
+<<<<<<< HEAD
 import { BatchOperationMapper, toPrismaJson } from './batch-operation.mapper';
+=======
+import { BatchOperationMapper } from './batch-operation.mapper';
+>>>>>>> origin2/dev-v1
 
 const ROW_INCLUDE = { rows: { orderBy: { createdAt: 'asc' as const } } };
 

@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CancelScheduledJobPort } from '../ports/cancel-scheduled-job.port';
 import { ScheduledJobRepositoryPort } from '../ports/scheduled-job-repository.port';
 
 @Injectable()
-export class CancelScheduledJobUseCase implements CancelScheduledJobPort {
+export class CancelScheduledJobUseCase {
   constructor(private readonly jobs: ScheduledJobRepositoryPort) {}
 
   execute(jobId: string): Promise<void> {

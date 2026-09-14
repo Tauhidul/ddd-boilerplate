@@ -7,10 +7,11 @@ module's `onApplicationBootstrap` — the pipeline never imports domain types.
 ## Layout
 
 ```
-ports/                             inbound + outbound abstract-class ports
-usecases/                          inbound port implementations (import.usecases.ts)
-adapters/                          Prisma job/row/storage repos + outbox writer,
-                                   BullMQ publisher + @Processor
+ports/                             inbound + outbound abstract-class ports (import.ports.ts)
+usecases/                          business logic only (import.usecases.ts) — implements no port
+adapters/                          inbound port adapters (import-inbound.adapters.ts, one thin
+                                   class per port, delegates to its usecase) + Prisma job/row/
+                                   storage repos + outbox writer, BullMQ publisher + @Processor
 events/                            ImportJobCompleted/Failed/Cancelled → outbox → RabbitMQ
 import-handler.registry.ts · import-file.parser.ts (header detection, alias mapping,
 structural checks) · import-reconciliation.consumer.ts (stale-job cron) ·
@@ -20,10 +21,10 @@ http/                              generic /import routes + Zod request DTOs
 
 ## Messaging
 
-| Plane | Tech | Role |
-|---|---|---|
-| Work | BullMQ `import.jobs` | parse → validate → execute |
-| Integration | Outbox → RabbitMQ | terminal job events |
+| Plane       | Tech                 | Role                       |
+| ----------- | -------------------- | -------------------------- |
+| Work        | BullMQ `import.jobs` | parse → validate → execute |
+| Integration | Outbox → RabbitMQ    | terminal job events        |
 
 ## Onboarding
 

@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ListScheduledJobDispatchLogPort } from '../ports/list-scheduled-job-dispatch-log.port';
 import { ScheduledJobDispatchLogRepositoryPort } from '../ports/scheduled-job-dispatch-log-repository.port';
 import { ScheduledJobDispatchLogRecord } from '../scheduler.types';
 
 @Injectable()
-export class ListScheduledJobDispatchLogUseCase implements ListScheduledJobDispatchLogPort {
+export class ListScheduledJobDispatchLogUseCase {
   constructor(private readonly logs: ScheduledJobDispatchLogRepositoryPort) {}
 
   execute(

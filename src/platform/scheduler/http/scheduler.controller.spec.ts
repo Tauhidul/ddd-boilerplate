@@ -1,4 +1,4 @@
-import { CancelScheduledJobPort } from '../ports/cancel-scheduled-job.port';
+import { SchedulerPort } from '../ports/scheduler.port';
 import { GetScheduledJobStatusPort } from '../ports/get-scheduled-job-status.port';
 import { GetSchedulerHealthMetricsPort } from '../ports/get-scheduler-health-metrics.port';
 import { ListScheduledJobDispatchLogPort } from '../ports/list-scheduled-job-dispatch-log.port';
@@ -37,7 +37,7 @@ describe('SchedulerController', () => {
       getStatus,
       {} as ListScheduledJobDispatchLogPort,
       {} as UpdateScheduledJobPort,
-      {} as CancelScheduledJobPort,
+      {} as SchedulerPort,
     );
 
     const result = await controller.list({});
@@ -45,19 +45,19 @@ describe('SchedulerController', () => {
     expect(list).toHaveBeenCalled();
   });
 
-  it('cancels a job via cancel port', async () => {
-    const cancelExecute = jest.fn().mockResolvedValue(undefined);
-    const cancel = { execute: cancelExecute } as unknown as CancelScheduledJobPort;
+  it('cancels a job via the scheduler port', async () => {
+    const cancel = jest.fn().mockResolvedValue(undefined);
+    const scheduler = { cancel } as unknown as SchedulerPort;
     const controller = new SchedulerController(
       {} as GetScheduledJobStatusPort,
       {} as ListScheduledJobDispatchLogPort,
       {} as UpdateScheduledJobPort,
-      cancel,
+      scheduler,
     );
 
     const result = await controller.cancel('j1');
     expect(result.data).toEqual({ id: 'j1' });
-    expect(cancelExecute).toHaveBeenCalledWith('j1');
+    expect(cancel).toHaveBeenCalledWith('j1');
   });
 });
 
@@ -85,7 +85,7 @@ describe('SchedulerHealthController', () => {
       getStatus,
       {} as ListScheduledJobDispatchLogPort,
       {} as UpdateScheduledJobPort,
-      {} as CancelScheduledJobPort,
+      {} as SchedulerPort,
     );
 
     const result = await controller.get('j1');

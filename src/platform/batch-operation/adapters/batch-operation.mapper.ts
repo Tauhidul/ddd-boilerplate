@@ -83,6 +83,7 @@ export class BatchOperationMapper {
     };
   }
 }
+<<<<<<< HEAD
 
 export function toPrismaJson(value: Record<string, unknown> | null): object | undefined {
   if (value === undefined || value === null) {
@@ -90,3 +91,5 @@ export function toPrismaJson(value: Record<string, unknown> | null): object | un
   }
   return JSON.parse(JSON.stringify(value)) as object;
 }
+=======
+>>>>>>> origin2/dev-v1

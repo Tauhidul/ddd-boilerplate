@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Prisma } from '../../../generated/client';
+import { toPrismaJson } from '@shared-kernel/utils/prisma-json.util';
 import {
   RecurringTemplateRepositoryPort,
   RecurringTemplateUpdate,
@@ -165,11 +166,4 @@ function toRecord(row: TemplateRow): RecurringTemplateRecord {
     generationCondition: (row.generationCondition as Record<string, unknown> | null) ?? null,
     lines: (row.lines as unknown[]) ?? [],
   };
-}
-
-function toPrismaJson(value: unknown): object | undefined {
-  if (value === undefined || value === null) return undefined;
-  // JSON round-trip produces a plain JSON value that satisfies Prisma's
-  // InputJsonValue, which the generated @ts-nocheck types don't expose to tsc.
-  return JSON.parse(JSON.stringify(value)) as object;
 }

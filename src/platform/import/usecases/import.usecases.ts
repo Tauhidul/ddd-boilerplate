@@ -11,21 +11,6 @@ import {
   structuralValidateRow,
   suggestMapping,
 } from '../import-file.parser';
-import {
-  CancelImportJobPort,
-  CreateImportJobPort,
-  CreateImportUploadPort,
-  ExecuteImportJobPort,
-  GetImportJobStatusPort,
-  GetImportPreviewPort,
-  GetImportReportPort,
-  InitImportPort,
-  ListImportJobsPort,
-  ParseImportJobPort,
-  RunImportExecutionPort,
-  UpdateImportMappingPort,
-  ValidateImportJobPort,
-} from '../ports/import.ports';
 import { ImportJobOutboxWriterPort } from '../ports/import-job-outbox-writer.port';
 import { ImportJobRepositoryPort } from '../ports/import-job-repository.port';
 import { ImportJobRowRepositoryPort } from '../ports/import-job-row-repository.port';
@@ -52,8 +37,15 @@ import {
   StorageObjectNotFoundError,
 } from '../import.errors';
 
+/** Shared by the parse/validate/execute stages — a job built by an older deploy must not resume mid-pipeline under a changed build. */
+function assertImportBuildSha(job: ImportJobRecord, currentBuildSha: string): void {
+  if (job.buildSha && job.buildSha !== currentBuildSha) {
+    throw new ImportBuildShaMismatchError(job.id, job.buildSha, currentBuildSha);
+  }
+}
+
 @Injectable()
-export class InitImportUseCase implements InitImportPort {
+export class InitImportUseCase {
   constructor(
     private readonly registry: ImportHandlerRegistry,
     @Inject(ImportJobRepositoryPort) private readonly jobs: ImportJobRepositoryPort,
@@ -79,7 +71,7 @@ export class InitImportUseCase implements InitImportPort {
 }
 
 @Injectable()
-export class CreateImportUploadUseCase implements CreateImportUploadPort {
+export class CreateImportUploadUseCase {
   constructor(
     private readonly registry: ImportHandlerRegistry,
     private readonly config: ConfigService,
@@ -124,7 +116,7 @@ export class CreateImportUploadUseCase implements CreateImportUploadPort {
 }
 
 @Injectable()
-export class CreateImportJobUseCase implements CreateImportJobPort {
+export class CreateImportJobUseCase {
   constructor(
     private readonly registry: ImportHandlerRegistry,
     private readonly config: ConfigService,
@@ -191,7 +183,7 @@ export class CreateImportJobUseCase implements CreateImportJobPort {
 }
 
 @Injectable()
-export class GetImportJobStatusUseCase implements GetImportJobStatusPort {
+export class GetImportJobStatusUseCase {
   constructor(@Inject(ImportJobRepositoryPort) private readonly jobs: ImportJobRepositoryPort) {}
 
   async execute(input: { jobId: string; tenantId?: string }): Promise<ImportJobRecord> {
@@ -209,7 +201,7 @@ export class GetImportJobStatusUseCase implements GetImportJobStatusPort {
 }
 
 @Injectable()
-export class ListImportJobsUseCase implements ListImportJobsPort {
+export class ListImportJobsUseCase {
   constructor(@Inject(ImportJobRepositoryPort) private readonly jobs: ImportJobRepositoryPort) {}
 
   execute(input: {
@@ -224,7 +216,7 @@ export class ListImportJobsUseCase implements ListImportJobsPort {
 }
 
 @Injectable()
-export class CancelImportJobUseCase implements CancelImportJobPort {
+export class CancelImportJobUseCase {
   constructor(
     @Inject(ImportJobRepositoryPort) private readonly jobs: ImportJobRepositoryPort,
     @Inject(ImportJobOutboxWriterPort) private readonly outbox: ImportJobOutboxWriterPort,
@@ -259,7 +251,7 @@ export class CancelImportJobUseCase implements CancelImportJobPort {
 }
 
 @Injectable()
-export class UpdateImportMappingUseCase implements UpdateImportMappingPort {
+export class UpdateImportMappingUseCase {
   constructor(
     @Inject(ImportJobRepositoryPort) private readonly jobs: ImportJobRepositoryPort,
     @Inject(ImportQueuePublisherPort) private readonly queue: ImportQueuePublisherPort,
@@ -301,7 +293,7 @@ export class UpdateImportMappingUseCase implements UpdateImportMappingPort {
 }
 
 @Injectable()
-export class GetImportPreviewUseCase implements GetImportPreviewPort {
+export class GetImportPreviewUseCase {
   constructor(
     @Inject(ImportJobRepositoryPort) private readonly jobs: ImportJobRepositoryPort,
     @Inject(ImportJobRowRepositoryPort) private readonly rows: ImportJobRowRepositoryPort,
@@ -330,7 +322,7 @@ export class GetImportPreviewUseCase implements GetImportPreviewPort {
 }
 
 @Injectable()
-export class GetImportReportUseCase implements GetImportReportPort {
+export class GetImportReportUseCase {
   constructor(
     @Inject(ImportJobRepositoryPort) private readonly jobs: ImportJobRepositoryPort,
     @Inject(ImportJobRowRepositoryPort) private readonly rows: ImportJobRowRepositoryPort,
@@ -360,7 +352,7 @@ export class GetImportReportUseCase implements GetImportReportPort {
 }
 
 @Injectable()
-export class ExecuteImportJobUseCase implements ExecuteImportJobPort {
+export class ExecuteImportJobUseCase {
   constructor(
     @Inject(ImportJobRepositoryPort) private readonly jobs: ImportJobRepositoryPort,
     @Inject(ImportQueuePublisherPort) private readonly queue: ImportQueuePublisherPort,
@@ -390,7 +382,7 @@ export class ExecuteImportJobUseCase implements ExecuteImportJobPort {
 }
 
 @Injectable()
-export class ParseImportJobUseCase implements ParseImportJobPort {
+export class ParseImportJobUseCase {
   constructor(
     private readonly config: ConfigService,
     private readonly storage: FileStoragePort,
@@ -404,7 +396,7 @@ export class ParseImportJobUseCase implements ParseImportJobPort {
   async execute(jobId: string): Promise<void> {
     const job = await this.jobs.findById(jobId);
     if (!job) throw new ImportJobNotFoundError(jobId);
-    this.assertBuildSha(job);
+    assertImportBuildSha(job, this.config.getImport().buildSha);
 
     if (job.status === 'MAPPED' || job.status === 'VALIDATING' || job.status === 'VALIDATED') {
       return;
@@ -473,17 +465,10 @@ export class ParseImportJobUseCase implements ParseImportJobPort {
       throw err;
     }
   }
-
-  private assertBuildSha(job: ImportJobRecord) {
-    const current = this.config.getImport().buildSha;
-    if (job.buildSha && job.buildSha !== current) {
-      throw new ImportBuildShaMismatchError(job.id, job.buildSha, current);
-    }
-  }
 }
 
 @Injectable()
-export class ValidateImportJobUseCase implements ValidateImportJobPort {
+export class ValidateImportJobUseCase {
   constructor(
     private readonly registry: ImportHandlerRegistry,
     private readonly config: ConfigService,
@@ -495,7 +480,7 @@ export class ValidateImportJobUseCase implements ValidateImportJobPort {
   async execute(jobId: string): Promise<void> {
     const job = await this.jobs.findById(jobId);
     if (!job) throw new ImportJobNotFoundError(jobId);
-    this.assertBuildSha(job);
+    assertImportBuildSha(job, this.config.getImport().buildSha);
     if (job.status === 'VALIDATED' || job.status === 'EXECUTING') return;
     if (job.status !== 'VALIDATING' && job.status !== 'MAPPED') {
       throw new InvalidImportJobStateError(job.id, job.status, ['MAPPED', 'VALIDATING']);
@@ -583,17 +568,10 @@ export class ValidateImportJobUseCase implements ValidateImportJobPort {
       throw err;
     }
   }
-
-  private assertBuildSha(job: ImportJobRecord) {
-    const current = this.config.getImport().buildSha;
-    if (job.buildSha && job.buildSha !== current) {
-      throw new ImportBuildShaMismatchError(job.id, job.buildSha, current);
-    }
-  }
 }
 
 @Injectable()
-export class RunImportExecutionUseCase implements RunImportExecutionPort {
+export class RunImportExecutionUseCase {
   constructor(
     private readonly registry: ImportHandlerRegistry,
     private readonly config: ConfigService,
@@ -605,7 +583,7 @@ export class RunImportExecutionUseCase implements RunImportExecutionPort {
   async execute(jobId: string): Promise<void> {
     const job = await this.jobs.findById(jobId);
     if (!job) throw new ImportJobNotFoundError(jobId);
-    this.assertBuildSha(job);
+    assertImportBuildSha(job, this.config.getImport().buildSha);
     if (['COMPLETED', 'COMPLETED_WITH_ERRORS', 'FAILED', 'CANCELLED'].includes(job.status)) {
       return;
     }
@@ -696,13 +674,6 @@ export class RunImportExecutionUseCase implements RunImportExecutionPort {
       });
       await this.outbox.writeFailedEvent(failed);
       throw err;
-    }
-  }
-
-  private assertBuildSha(job: ImportJobRecord) {
-    const current = this.config.getImport().buildSha;
-    if (job.buildSha && job.buildSha !== current) {
-      throw new ImportBuildShaMismatchError(job.id, job.buildSha, current);
     }
   }
 }

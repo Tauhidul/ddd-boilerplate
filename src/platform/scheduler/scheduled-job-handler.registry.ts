@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { KeyedRegistryBase } from '@shared-kernel/utils/keyed-registry.base';
 import {
   ScheduledJobFireHandler,
   ScheduledJobPayload,
@@ -9,31 +10,18 @@ import { DuplicateHandlerRegistrationError, UnregisteredHandlerError } from './s
  * Keyed by jobType. Dispatch checks here first; missing entry falls back to RabbitMQ.
  */
 @Injectable()
-export class ScheduledJobHandlerRegistry {
-  private readonly handlers = new Map<string, ScheduledJobFireHandler>();
-
+export class ScheduledJobHandlerRegistry extends KeyedRegistryBase<ScheduledJobFireHandler> {
   register(jobType: string, handler: ScheduledJobFireHandler): void {
-    if (this.handlers.has(jobType)) {
-      throw new DuplicateHandlerRegistrationError(jobType);
-    }
-    this.handlers.set(jobType, handler);
-  }
-
-  has(jobType: string): boolean {
-    return this.handlers.has(jobType);
+    this.registerEntry(jobType, handler, () => new DuplicateHandlerRegistrationError(jobType));
   }
 
   resolveHandler(jobType: string): ScheduledJobFireHandler {
-    const handler = this.handlers.get(jobType);
-    if (!handler) {
-      throw new UnregisteredHandlerError(jobType);
-    }
-    return handler;
+    return this.requireEntry(jobType, () => new UnregisteredHandlerError(jobType));
   }
 
   /** Returns true if an in-process handler fired; false if none registered. */
   async tryFire(jobType: string, payload: ScheduledJobPayload): Promise<boolean> {
-    const handler = this.handlers.get(jobType);
+    const handler = this.getEntry(jobType);
     if (!handler) {
       return false;
     }
@@ -42,6 +30,6 @@ export class ScheduledJobHandlerRegistry {
   }
 
   registeredJobTypes(): string[] {
-    return [...this.handlers.keys()];
+    return this.registeredKeys();
   }
 }

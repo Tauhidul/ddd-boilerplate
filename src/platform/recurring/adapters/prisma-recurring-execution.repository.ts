@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { Prisma } from '../../../generated/client';
+import { toPrismaJson } from '@shared-kernel/utils/prisma-json.util';
 import {
   CompleteExecutionInput,
   RecurringExecutionRepositoryPort,
@@ -119,9 +120,4 @@ function toRecord(row: ExecutionRow): RecurringExecutionRecord {
     skipReason: row.skipReason,
     errorMessage: row.errorMessage,
   };
-}
-
-function toPrismaJson(value: unknown): object | undefined {
-  if (value === undefined || value === null) return undefined;
-  return JSON.parse(JSON.stringify(value)) as object;
 }

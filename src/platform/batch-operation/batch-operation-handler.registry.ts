@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { KeyedRegistryBase } from '@shared-kernel/utils/keyed-registry.base';
 import { BatchOperationHandler } from './ports/batch-operation-handler.port';
 import {
   BatchHandlerOperationMismatchError,
@@ -21,9 +22,7 @@ interface RegisteredEntry {
  * branches on aggregateType or operationCode itself.
  */
 @Injectable()
-export class BatchOperationHandlerRegistry {
-  private readonly entries = new Map<string, RegisteredEntry>();
-
+export class BatchOperationHandlerRegistry extends KeyedRegistryBase<RegisteredEntry> {
   /**
    * Called once per aggregateType at boot. Validates that the handler reports
    * every operationCode the registration claims — a mismatch throws here, not
@@ -34,7 +33,7 @@ export class BatchOperationHandlerRegistry {
     supportedOperations: string[],
     handler: BatchOperationHandler,
   ): void {
-    if (this.entries.has(aggregateType)) {
+    if (this.has(aggregateType)) {
       throw new DuplicateBatchHandlerRegistrationError(aggregateType);
     }
 
@@ -48,18 +47,15 @@ export class BatchOperationHandlerRegistry {
   }
 
   resolveHandler(aggregateType: string): BatchOperationHandler {
-    const entry = this.entries.get(aggregateType);
-    if (!entry) {
-      throw new UnregisteredBatchHandlerError(aggregateType);
-    }
-    return entry.handler;
+    return this.requireEntry(aggregateType, () => new UnregisteredBatchHandlerError(aggregateType))
+      .handler;
   }
 
   assertOperationSupported(aggregateType: string, operationCode: string): void {
-    const entry = this.entries.get(aggregateType);
-    if (!entry) {
-      throw new UnregisteredBatchHandlerError(aggregateType);
-    }
+    const entry = this.requireEntry(
+      aggregateType,
+      () => new UnregisteredBatchHandlerError(aggregateType),
+    );
     if (!entry.supportedOperations.includes(operationCode)) {
       throw new UnsupportedBatchOperationError(aggregateType, operationCode);
     }

@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { RegisterScheduledJobPort } from '../ports/register-scheduled-job.port';
 import { ScheduledJobRepositoryPort } from '../ports/scheduled-job-repository.port';
 import { RegisterScheduledJobInput, JobScope, ScheduleMode } from '../scheduler.types';
 import { InvalidScopeTenantError, InvalidCronExpressionError } from '../scheduler.errors';
 import { computeNextRunAt } from '../cron-calculator';
 
 @Injectable()
-export class RegisterScheduledJobUseCase implements RegisterScheduledJobPort {
+export class RegisterScheduledJobUseCase {
   constructor(private readonly jobs: ScheduledJobRepositoryPort) {}
 
   async execute(input: RegisterScheduledJobInput): Promise<string> {

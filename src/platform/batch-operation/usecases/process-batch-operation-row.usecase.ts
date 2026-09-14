@@ -3,7 +3,6 @@ import { ConfigService } from '@config/config.service';
 import { BatchOperationHandlerRegistry } from '../batch-operation-handler.registry';
 import { BatchOperationJobRepositoryPort } from '../ports/batch-operation-job-repository.port';
 import { BatchOperationJobRowRepositoryPort } from '../ports/batch-operation-job-row-repository.port';
-import { ProcessBatchOperationRowPort } from '../ports/process-batch-operation-row.port';
 import {
   BatchOperationContext,
   BatchOperationDispatch,
@@ -21,7 +20,7 @@ const KNOWN_SKIP_REASONS: readonly BatchOperationSkipReason[] = [
  * worker stays a thin chunk loop.
  */
 @Injectable()
-export class ProcessBatchOperationRowUseCase implements ProcessBatchOperationRowPort {
+export class ProcessBatchOperationRowUseCase {
   private readonly logger = new Logger(ProcessBatchOperationRowUseCase.name);
 
   constructor(

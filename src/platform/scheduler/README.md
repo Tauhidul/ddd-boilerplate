@@ -1,17 +1,17 @@
 # Scheduler (`platform/scheduler`)
 
 Centralized TIME-trigger bookkeeping. Producers never touch `scheduled_jobs`;
-they call inbound ports (or the legacy `SchedulerPort` facade).
+they call inbound ports (dispatch, reconcile, update, queries, or the
+aggregate-scoped `SchedulerPort`).
 
 ## Layout
 
 ```
-ports/         inbound (register, cancel, dispatch, reconcile, update, queries,
-               SchedulerPort facade) + outbound (repositories, lock, event
-               publisher, queue, fire handler)
-usecases/      one class per inbound port (+ SchedulerPortFacade)
-adapters/      Prisma repositories, BullMQ queue + @Processor worker,
-               Redis lock, RabbitMQ event publisher
+ports/         inbound (dispatch, reconcile, update, queries, SchedulerPort) +
+               outbound (repositories, lock, event publisher, queue, fire handler)
+usecases/      business logic only, one class per capability — implements no port
+adapters/      inbound port adapters (delegate to usecases) + Prisma repositories,
+               BullMQ queue + @Processor worker, Redis lock, RabbitMQ event publisher
 cron-calculator.ts, scheduled-job-handler.registry.ts, scheduled-job.processor.ts,
 scheduler.ticker.ts, scheduler.types.ts, scheduler.errors.ts, scheduler.constants.ts
 http/          admin controllers + Zod request DTOs
@@ -29,20 +29,26 @@ http/          admin controllers + Zod request DTOs
 
 ## Open-decision defaults
 
-| Topic | Default |
-|-------|---------|
-| Missed Cron | skip-to-next |
-| Missed External | catch-up (leave due for next tick) |
-| Cron edit | recompute `nextRunAt` immediately |
-| Edit audit | module-local `scheduled_job_edit_log` |
+| Topic           | Default                               |
+| --------------- | ------------------------------------- |
+| Missed Cron     | skip-to-next                          |
+| Missed External | catch-up (leave due for next tick)    |
+| Cron edit       | recompute `nextRunAt` immediately     |
+| Edit audit      | module-local `scheduled_job_edit_log` |
 
 ## Ports
 
 All scheduler ports live in `ports/` as **abstract classes used as their own DI token**
-(this repo's port convention). Bindings happen in `scheduler.module.ts`
-(`useExisting`); consumers inject the abstract class directly.
-`SchedulerPort.schedule/reschedule/cancel/*ByAggregate` maps to AGGREGATE + EXTERNAL
-register/reschedule/cancel — keeps orphaned Recurring compiling.
+(this repo's port convention). Each is implemented by a thin adapter in `adapters/`
+that delegates to the matching usecase; bindings happen in `scheduler.module.ts`
+(`useExisting: <Adapter>`), and consumers inject the abstract class directly.
+`SchedulerPort` is the single aggregate-scoped surface (`schedule/reschedule/cancel/
+*ByAggregate`) — implemented by `SchedulerAdapter`, which maps `schedule` to
+AGGREGATE + EXTERNAL register and delegates cancel/reschedule to the matching
+usecases. `RegisterScheduledJobUseCase`, `CancelScheduledJobUseCase`, and
+`RescheduleExternalJobUseCase` have no port of their own — `SchedulerPort` is
+their only inbound surface — so business code (e.g. Recurring) depends on
+`SchedulerPort`, not on those usecases or their granular ports directly.
 
 ## Handler registration
 

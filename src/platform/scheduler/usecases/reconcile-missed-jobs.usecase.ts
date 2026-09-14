@@ -1,5 +1,4 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ReconcileMissedJobsPort } from '../ports/reconcile-missed-jobs.port';
 import { ScheduledJobRepositoryPort } from '../ports/scheduled-job-repository.port';
 import { DistributedLockPort } from '../ports/distributed-lock.port';
 import { ScheduleMode } from '../scheduler.types';
@@ -10,7 +9,7 @@ import { computeNextRunAt } from '../cron-calculator';
  * Cron → skip-to-next; External → catch-up (reset to PENDING with nextRunAt=now).
  */
 @Injectable()
-export class ReconcileMissedJobsUseCase implements ReconcileMissedJobsPort {
+export class ReconcileMissedJobsUseCase {
   private readonly logger = new Logger(ReconcileMissedJobsUseCase.name);
 
   constructor(

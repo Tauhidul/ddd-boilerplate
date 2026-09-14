@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { BatchOperationHandlerRegistry } from '../batch-operation-handler.registry';
-import { ValidateBatchOperationPort } from '../ports/validate-batch-operation.port';
 import {
   BatchOperationContext,
   BatchOperationPreview,
@@ -15,7 +14,7 @@ import {
  * per row, so the preview never lies.
  */
 @Injectable()
-export class ValidateBatchOperationUseCase implements ValidateBatchOperationPort {
+export class ValidateBatchOperationUseCase {
   constructor(private readonly registry: BatchOperationHandlerRegistry) {}
 
   async execute(input: ValidateBatchOperationInput): Promise<BatchOperationPreview> {

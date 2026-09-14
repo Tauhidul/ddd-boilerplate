@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateScheduledJobPort } from '../ports/update-scheduled-job.port';
 import { ScheduledJobRepositoryPort } from '../ports/scheduled-job-repository.port';
 import { ScheduledJobEditLogRepositoryPort } from '../ports/scheduled-job-edit-log-repository.port';
 import { UpdateScheduledJobInput, ScheduleMode } from '../scheduler.types';
@@ -11,7 +10,7 @@ import {
 import { computeNextRunAt } from '../cron-calculator';
 
 @Injectable()
-export class UpdateScheduledJobUseCase implements UpdateScheduledJobPort {
+export class UpdateScheduledJobUseCase {
   constructor(
     private readonly jobs: ScheduledJobRepositoryPort,
 

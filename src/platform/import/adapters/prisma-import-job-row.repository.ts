@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
+import { toPrismaJson } from '@shared-kernel/utils/prisma-json.util';
 import { ImportJobRowRepositoryPort } from '../ports/import-job-row-repository.port';
 import {
   ImportJobRowRecord,
@@ -29,8 +30,8 @@ export class PrismaImportJobRowRepository implements ImportJobRowRepositoryPort 
         tenantId: r.tenantId ?? null,
         importJobId: r.importJobId,
         rowNumber: r.rowNumber,
-        rawPayload: toJsonInput(r.rawPayload ?? {}),
-        mappedPayload: toJsonInput(r.mappedPayload ?? {}),
+        rawPayload: toPrismaJson(r.rawPayload ?? {}),
+        mappedPayload: toPrismaJson(r.mappedPayload ?? {}),
       })),
       skipDuplicates: true,
     });
@@ -237,7 +238,4 @@ function mapRow(row: {
     updatedAt: row.updatedAt,
     processedAt: row.processedAt ?? undefined,
   };
-}
-function toJsonInput(value: unknown): object {
-  return JSON.parse(JSON.stringify(value)) as object;
 }

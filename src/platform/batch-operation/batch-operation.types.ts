@@ -149,3 +149,16 @@ export interface BatchOperationListQuery {
   page: number;
   pageSize: number;
 }
+<<<<<<< HEAD
+=======
+
+/** True once a job can no longer be cancelled or resumed. */
+export function isTerminalBatchOperationStatus(status: BatchOperationJobStatus): boolean {
+  return (
+    status === 'COMPLETED' ||
+    status === 'COMPLETED_WITH_ERRORS' ||
+    status === 'FAILED' ||
+    status === 'CANCELLED'
+  );
+}
+>>>>>>> origin2/dev-v1

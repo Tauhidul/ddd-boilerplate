@@ -5,14 +5,11 @@ import { Module } from '@nestjs/common';
 import { ScheduledJobHandlerRegistry } from './scheduled-job-handler.registry';
 import { ScheduledJobProcessor } from './scheduled-job.processor';
 import { SchedulerTicker } from './scheduler.ticker';
-import { CancelScheduledJobPort } from './ports/cancel-scheduled-job.port';
 import { DispatchDueJobsPort } from './ports/dispatch-due-jobs.port';
 import { GetScheduledJobStatusPort } from './ports/get-scheduled-job-status.port';
 import { GetSchedulerHealthMetricsPort } from './ports/get-scheduler-health-metrics.port';
 import { ListScheduledJobDispatchLogPort } from './ports/list-scheduled-job-dispatch-log.port';
 import { ReconcileMissedJobsPort } from './ports/reconcile-missed-jobs.port';
-import { RegisterScheduledJobPort } from './ports/register-scheduled-job.port';
-import { RescheduleExternalJobPort } from './ports/reschedule-external-job.port';
 import { SchedulerPort } from './ports/scheduler.port';
 import { UpdateScheduledJobPort } from './ports/update-scheduled-job.port';
 import { DistributedLockPort } from './ports/distributed-lock.port';
@@ -29,7 +26,6 @@ import { ListScheduledJobDispatchLogUseCase } from './usecases/list-scheduled-jo
 import { ReconcileMissedJobsUseCase } from './usecases/reconcile-missed-jobs.usecase';
 import { RegisterScheduledJobUseCase } from './usecases/register-scheduled-job.usecase';
 import { RescheduleExternalJobUseCase } from './usecases/reschedule-external-job.usecase';
-import { SchedulerPortFacade } from './usecases/scheduler-port.facade';
 import { UpdateScheduledJobUseCase } from './usecases/update-scheduled-job.usecase';
 import { PrismaScheduledJobDispatchLogRepository } from './adapters/prisma-scheduled-job-dispatch-log.repository';
 import { PrismaScheduledJobEditLogRepository } from './adapters/prisma-scheduled-job-edit-log.repository';
@@ -39,6 +35,13 @@ import { BullMqSchedulerJobQueue } from './adapters/bullmq-scheduler-job.queue';
 import { BullMqSchedulerJobWorker } from './adapters/bullmq-scheduler-job.worker';
 import { RabbitMqSchedulerEventPublisher } from './adapters/rabbitmq-scheduler-event.publisher';
 import { RedisDistributedLockAdapter } from './adapters/redis-distributed-lock.adapter';
+import { SchedulerAdapter } from './adapters/scheduler.adapter';
+import { DispatchDueJobsAdapter } from './adapters/dispatch-due-jobs.adapter';
+import { GetScheduledJobStatusAdapter } from './adapters/get-scheduled-job-status.adapter';
+import { GetSchedulerHealthMetricsAdapter } from './adapters/get-scheduler-health-metrics.adapter';
+import { ListScheduledJobDispatchLogAdapter } from './adapters/list-scheduled-job-dispatch-log.adapter';
+import { ReconcileMissedJobsAdapter } from './adapters/reconcile-missed-jobs.adapter';
+import { UpdateScheduledJobAdapter } from './adapters/update-scheduled-job.adapter';
 import { SchedulerController, SchedulerHealthController } from './http/scheduler.controller';
 
 /**
@@ -78,40 +81,40 @@ import { SchedulerController, SchedulerHealthController } from './http/scheduler
     { provide: SchedulerJobQueuePort, useExisting: BullMqSchedulerJobQueue },
     BullMqSchedulerJobWorker,
 
-    // use cases bound to their inbound ports
+    // use cases (business logic only) bound to their inbound ports via a thin adapter
     RegisterScheduledJobUseCase,
-    { provide: RegisterScheduledJobPort, useExisting: RegisterScheduledJobUseCase },
     CancelScheduledJobUseCase,
-    { provide: CancelScheduledJobPort, useExisting: CancelScheduledJobUseCase },
     RescheduleExternalJobUseCase,
-    { provide: RescheduleExternalJobPort, useExisting: RescheduleExternalJobUseCase },
     UpdateScheduledJobUseCase,
-    { provide: UpdateScheduledJobPort, useExisting: UpdateScheduledJobUseCase },
+    UpdateScheduledJobAdapter,
+    { provide: UpdateScheduledJobPort, useExisting: UpdateScheduledJobAdapter },
     DispatchDueJobsUseCase,
-    { provide: DispatchDueJobsPort, useExisting: DispatchDueJobsUseCase },
+    DispatchDueJobsAdapter,
+    { provide: DispatchDueJobsPort, useExisting: DispatchDueJobsAdapter },
     ReconcileMissedJobsUseCase,
-    { provide: ReconcileMissedJobsPort, useExisting: ReconcileMissedJobsUseCase },
+    ReconcileMissedJobsAdapter,
+    { provide: ReconcileMissedJobsPort, useExisting: ReconcileMissedJobsAdapter },
     GetScheduledJobStatusUseCase,
-    { provide: GetScheduledJobStatusPort, useExisting: GetScheduledJobStatusUseCase },
+    GetScheduledJobStatusAdapter,
+    { provide: GetScheduledJobStatusPort, useExisting: GetScheduledJobStatusAdapter },
     ListScheduledJobDispatchLogUseCase,
+    ListScheduledJobDispatchLogAdapter,
     {
       provide: ListScheduledJobDispatchLogPort,
-      useExisting: ListScheduledJobDispatchLogUseCase,
+      useExisting: ListScheduledJobDispatchLogAdapter,
     },
     GetSchedulerHealthMetricsUseCase,
+    GetSchedulerHealthMetricsAdapter,
     {
       provide: GetSchedulerHealthMetricsPort,
-      useExisting: GetSchedulerHealthMetricsUseCase,
+      useExisting: GetSchedulerHealthMetricsAdapter,
     },
-    SchedulerPortFacade,
-    { provide: SchedulerPort, useExisting: SchedulerPortFacade },
+    SchedulerAdapter,
+    { provide: SchedulerPort, useExisting: SchedulerAdapter },
     SchedulerTicker,
   ],
   exports: [
     SchedulerPort,
-    RegisterScheduledJobPort,
-    CancelScheduledJobPort,
-    RescheduleExternalJobPort,
     UpdateScheduledJobPort,
     DispatchDueJobsPort,
     ReconcileMissedJobsPort,

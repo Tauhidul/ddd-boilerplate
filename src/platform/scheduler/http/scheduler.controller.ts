@@ -4,7 +4,7 @@ import { ApiResponse } from '@shared-kernel/types/api-response.type';
 import { ScheduledJobDispatchLogRecord } from '../scheduler.types';
 import { ScheduledJobRecord } from '../scheduler.types';
 import { SchedulerHealthMetrics } from '../scheduler.types';
-import { CancelScheduledJobPort } from '../ports/cancel-scheduled-job.port';
+import { SchedulerPort } from '../ports/scheduler.port';
 import { GetScheduledJobStatusPort } from '../ports/get-scheduled-job-status.port';
 import { GetSchedulerHealthMetricsPort } from '../ports/get-scheduler-health-metrics.port';
 import { ListScheduledJobDispatchLogPort } from '../ports/list-scheduled-job-dispatch-log.port';
@@ -19,7 +19,7 @@ export class SchedulerController {
     private readonly getStatus: GetScheduledJobStatusPort,
     private readonly listDispatchLog: ListScheduledJobDispatchLogPort,
     private readonly updateJob: UpdateScheduledJobPort,
-    private readonly cancelJob: CancelScheduledJobPort,
+    private readonly scheduler: SchedulerPort,
   ) {}
 
   @Get()
@@ -66,7 +66,7 @@ export class SchedulerController {
   @HttpCode(200)
   @ApiOperation({ summary: 'Cancel a scheduled job' })
   async cancel(@Param('id') id: string): Promise<ApiResponse<{ id: string }>> {
-    await this.cancelJob.execute(id);
+    await this.scheduler.cancel(id);
     return { data: { id }, message: 'Scheduled job cancelled' };
   }
 }

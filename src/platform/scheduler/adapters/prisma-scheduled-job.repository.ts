@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TransactionHost } from '@nestjs-cls/transactional';
 import { TransactionalAdapterPrisma } from '@nestjs-cls/transactional-adapter-prisma';
 import { ConfigService } from '@config/config.service';
+import { toPrismaJson } from '@shared-kernel/utils/prisma-json.util';
 import {
   CreateScheduledJobData,
   ScheduledJobRepositoryPort,
@@ -227,11 +228,6 @@ export class PrismaScheduledJobRepository implements ScheduledJobRepositoryPort 
     });
     return result.count === 1;
   }
-}
-
-function toPrismaJson(value: Record<string, unknown> | undefined): object | undefined {
-  if (value === undefined || value === null) return undefined;
-  return JSON.parse(JSON.stringify(value)) as object;
 }
 
 function mapJob(row: {
