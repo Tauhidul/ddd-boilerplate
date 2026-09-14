@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { BatchOperationJobRepositoryPort } from './ports/batch-operation-job-repository.port';
 import { BatchOperationJobRowRepositoryPort } from './ports/batch-operation-job-row-repository.port';
 import { BatchOperationJobOutboxWriterPort } from './ports/batch-operation-job-outbox-writer.port';
-import { ProcessBatchOperationRowPort } from './ports/process-batch-operation-row.port';
+import { ProcessBatchOperationRowUseCase } from './usecases/process-batch-operation-row.usecase';
 import { BatchOperationDispatch, isTerminalBatchOperationStatus } from './batch-operation.types';
 
 /**
@@ -17,7 +17,7 @@ export class BatchOperationWorker {
   constructor(
     private readonly jobs: BatchOperationJobRepositoryPort,
     private readonly rows: BatchOperationJobRowRepositoryPort,
-    private readonly processRow: ProcessBatchOperationRowPort,
+    private readonly processRow: ProcessBatchOperationRowUseCase,
     private readonly outboxWriter: BatchOperationJobOutboxWriterPort,
   ) {}
 

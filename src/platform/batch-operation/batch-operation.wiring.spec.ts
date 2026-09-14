@@ -7,13 +7,6 @@ import { BatchOperationJobRepositoryPort } from './ports/batch-operation-job-rep
 import { BatchOperationJobRowRepositoryPort } from './ports/batch-operation-job-row-repository.port';
 import { BatchOperationQueuePublisherPort } from './ports/batch-operation-queue-publisher.port';
 import { BatchOperationJobOutboxWriterPort } from './ports/batch-operation-job-outbox-writer.port';
-import { CreateBatchOperationJobPort } from './ports/create-batch-operation-job.port';
-import { ProcessBatchOperationRowPort } from './ports/process-batch-operation-row.port';
-import { ValidateBatchOperationPort } from './ports/validate-batch-operation.port';
-import { GetBatchOperationJobStatusPort } from './ports/get-batch-operation-job-status.port';
-import { ListBatchOperationJobsPort } from './ports/list-batch-operation-jobs.port';
-import { ListBatchOperationJobRowsPort } from './ports/list-batch-operation-job-rows.port';
-import { CancelBatchOperationJobPort } from './ports/cancel-batch-operation-job.port';
 import { CreateBatchOperationJobUseCase } from './usecases/create-batch-operation-job.usecase';
 import { ProcessBatchOperationRowUseCase } from './usecases/process-batch-operation-row.usecase';
 import { ValidateBatchOperationUseCase } from './usecases/validate-batch-operation.usecase';
@@ -24,13 +17,6 @@ import { CancelBatchOperationJobUseCase } from './usecases/cancel-batch-operatio
 import { NumberingPort } from '@platform/numbering/ports/numbering.port';
 import { BatchOperationController } from './http/batch-operation.controller';
 import { InMemoryBatchOperationJobRepository } from './__testing__/in-memory-batch-operation-job.repository';
-import { CreateBatchOperationJobAdapter } from './adapters/create-batch-operation-job.adapter';
-import { ValidateBatchOperationAdapter } from './adapters/validate-batch-operation.adapter';
-import { ProcessBatchOperationRowAdapter } from './adapters/process-batch-operation-row.adapter';
-import { GetBatchOperationJobStatusAdapter } from './adapters/get-batch-operation-job-status.adapter';
-import { ListBatchOperationJobsAdapter } from './adapters/list-batch-operation-jobs.adapter';
-import { ListBatchOperationJobRowsAdapter } from './adapters/list-batch-operation-job-rows.adapter';
-import { CancelBatchOperationJobAdapter } from './adapters/cancel-batch-operation-job.adapter';
 
 const configStub = {
   getBatchOperation: () => ({
@@ -67,27 +53,13 @@ describe('batch-operation DI wiring', () => {
         },
         BatchOperationHandlerRegistry,
         ProcessBatchOperationRowUseCase,
-        ProcessBatchOperationRowAdapter,
-        { provide: ProcessBatchOperationRowPort, useExisting: ProcessBatchOperationRowAdapter },
         BatchOperationWorker,
         CreateBatchOperationJobUseCase,
-        CreateBatchOperationJobAdapter,
-        { provide: CreateBatchOperationJobPort, useExisting: CreateBatchOperationJobAdapter },
         ValidateBatchOperationUseCase,
-        ValidateBatchOperationAdapter,
-        { provide: ValidateBatchOperationPort, useExisting: ValidateBatchOperationAdapter },
         GetBatchOperationJobStatusUseCase,
-        GetBatchOperationJobStatusAdapter,
-        { provide: GetBatchOperationJobStatusPort, useExisting: GetBatchOperationJobStatusAdapter },
         ListBatchOperationJobsUseCase,
-        ListBatchOperationJobsAdapter,
-        { provide: ListBatchOperationJobsPort, useExisting: ListBatchOperationJobsAdapter },
         ListBatchOperationJobRowsUseCase,
-        ListBatchOperationJobRowsAdapter,
-        { provide: ListBatchOperationJobRowsPort, useExisting: ListBatchOperationJobRowsAdapter },
         CancelBatchOperationJobUseCase,
-        CancelBatchOperationJobAdapter,
-        { provide: CancelBatchOperationJobPort, useExisting: CancelBatchOperationJobAdapter },
         { provide: ConfigService, useValue: configStub },
         {
           provide: RequestContextPort,

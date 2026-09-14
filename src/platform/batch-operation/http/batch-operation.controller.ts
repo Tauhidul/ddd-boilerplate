@@ -5,12 +5,12 @@ import { ApiResponse } from '@shared-kernel/types/api-response.type';
 import { normalizePageQuery } from '@shared-kernel/types/pagination';
 import { RequestContextPort } from '@platform/context/ports/request-context.port';
 import { BatchOperationHandlerRegistry } from '../batch-operation-handler.registry';
-import { CancelBatchOperationJobPort } from '../ports/cancel-batch-operation-job.port';
-import { CreateBatchOperationJobPort } from '../ports/create-batch-operation-job.port';
-import { GetBatchOperationJobStatusPort } from '../ports/get-batch-operation-job-status.port';
-import { ListBatchOperationJobRowsPort } from '../ports/list-batch-operation-job-rows.port';
-import { ListBatchOperationJobsPort } from '../ports/list-batch-operation-jobs.port';
-import { ValidateBatchOperationPort } from '../ports/validate-batch-operation.port';
+import { CancelBatchOperationJobUseCase } from '../usecases/cancel-batch-operation-job.usecase';
+import { CreateBatchOperationJobUseCase } from '../usecases/create-batch-operation-job.usecase';
+import { GetBatchOperationJobStatusUseCase } from '../usecases/get-batch-operation-job-status.usecase';
+import { ListBatchOperationJobRowsUseCase } from '../usecases/list-batch-operation-job-rows.usecase';
+import { ListBatchOperationJobsUseCase } from '../usecases/list-batch-operation-jobs.usecase';
+import { ValidateBatchOperationUseCase } from '../usecases/validate-batch-operation.usecase';
 import { PageResult } from '@shared-kernel/types/pagination';
 import {
   BatchOperationJobRecord,
@@ -33,12 +33,12 @@ import {
 @Controller('batch-operations')
 export class BatchOperationController {
   constructor(
-    private readonly createJob: CreateBatchOperationJobPort,
-    private readonly validatePreview: ValidateBatchOperationPort,
-    private readonly getStatus: GetBatchOperationJobStatusPort,
-    private readonly listJobs: ListBatchOperationJobsPort,
-    private readonly listRows: ListBatchOperationJobRowsPort,
-    private readonly cancelJob: CancelBatchOperationJobPort,
+    private readonly createJob: CreateBatchOperationJobUseCase,
+    private readonly validatePreview: ValidateBatchOperationUseCase,
+    private readonly getStatus: GetBatchOperationJobStatusUseCase,
+    private readonly listJobs: ListBatchOperationJobsUseCase,
+    private readonly listRows: ListBatchOperationJobRowsUseCase,
+    private readonly cancelJob: CancelBatchOperationJobUseCase,
     private readonly registry: BatchOperationHandlerRegistry,
     private readonly requestContext: RequestContextPort,
   ) {}

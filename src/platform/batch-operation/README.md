@@ -7,32 +7,41 @@ fan-out pipeline crossing into a domain core at exactly one point, the adapter.
 
 ## Shape
 
+Flat platform-service layout — same convention as `platform/recurring`: root
+classes + `events/`, `http/`, `ports/`, `usecases/`, `adapters/`,
+`__testing__/`. No business-module DDD layering (no `domain/` or
+`application/` folders) — this module has no aggregate.
+
 ```
-ports/ + usecases/ + adapters/ + root classes
+root
+  batch-operation.module.ts             DI wiring
   batch-operation-handler.registry.ts   Map<aggregateType, handler> + boot validation + health
-  batch-operation.worker.ts             thin chunk loop → process-batch-operation-row
-  usecases/    business logic only, one class per capability — implements no port
-    create-batch-operation-job.usecase.ts    guards, mode decision, job+rows txn, dispatch
-    process-batch-operation-row.usecase.ts   claim → validate → execute → record → progress
-    validate-batch-operation.usecase.ts      dry-run preview
-    get-batch-operation-job-status.usecase.ts
-    list-batch-operation-jobs.usecase.ts
-    list-batch-operation-job-rows.usecase.ts
-    cancel-batch-operation-job.usecase.ts
-  consumers/
-    batch-operation-reconciliation.consumer.ts   @Cron: reset stuck PROCESSING, re-enqueue PENDING
-  ports/inbound/    create / process-row / get-status / list-jobs / list-rows / cancel / validate
-  ports/outbound/
-    batch-operation-handler.port.ts
-    batch-operation-job-repository.port.ts
-    batch-operation-job-row-repository.port.ts
-    batch-operation-queue-publisher.port.ts
-    batch-operation-job-outbox-writer.port.ts
-  events/ · errors/ · types/ · __testing__/
+  batch-operation.worker.ts             thin chunk loop → ProcessBatchOperationRowUseCase
+  batch-operation-reconciliation.consumer.ts   @Cron: reset stuck PROCESSING, re-enqueue PENDING
+  batch-operation.types.ts · batch-operation.errors.ts · batch-operation.constants.ts
+usecases/    business logic only, one class per capability, injected directly
+             by the controller/worker — no per-usecase port+adapter wrapper
+  create-batch-operation-job.usecase.ts    guards, mode decision, job+rows txn, dispatch
+  process-batch-operation-row.usecase.ts   claim → validate → execute → record → progress
+  validate-batch-operation.usecase.ts      dry-run preview
+  get-batch-operation-job-status.usecase.ts
+  list-batch-operation-jobs.usecase.ts
+  list-batch-operation-job-rows.usecase.ts
+  cancel-batch-operation-job.usecase.ts
+ports/   only genuine outbound/plugin boundaries — persistence + the
+         cross-module handler contract, each with exactly one production adapter
+  batch-operation-handler.port.ts           implemented by each opted-in aggregate module
+  batch-operation-job-repository.port.ts
+  batch-operation-job-row-repository.port.ts
+  batch-operation-queue-publisher.port.ts
+  batch-operation-job-outbox-writer.port.ts
 adapters/
-  inbound/       one thin *Adapter per inbound port, delegates to its usecase
-  persistence/   Prisma job+row repo, outbox writer
-  queue/         BullMQ publisher + @Processor worker
+  prisma-batch-operation-job.repository.ts   Prisma job+row repo (implements both repo ports)
+  prisma-batch-operation-job-outbox.writer.ts
+  bullmq-batch-operation-queue.publisher.ts
+  bullmq-batch-operation.worker.ts           @Processor — Async path only
+  batch-operation.mapper.ts
+events/ · __testing__/
 http/
   POST /batch-operations · POST /batch-operations/validate ·
   GET /batch-operations · GET /batch-operations/:id · GET /batch-operations/:id/rows ·
