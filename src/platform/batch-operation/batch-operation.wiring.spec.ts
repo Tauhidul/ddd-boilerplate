@@ -7,16 +7,6 @@ import { BatchOperationJobRepositoryPort } from './ports/batch-operation-job-rep
 import { BatchOperationJobRowRepositoryPort } from './ports/batch-operation-job-row-repository.port';
 import { BatchOperationQueuePublisherPort } from './ports/batch-operation-queue-publisher.port';
 import { BatchOperationJobOutboxWriterPort } from './ports/batch-operation-job-outbox-writer.port';
-<<<<<<< HEAD
-import { CreateBatchOperationJobPort } from './ports/create-batch-operation-job.port';
-import { ProcessBatchOperationRowPort } from './ports/process-batch-operation-row.port';
-import { ValidateBatchOperationPort } from './ports/validate-batch-operation.port';
-import { GetBatchOperationJobStatusPort } from './ports/get-batch-operation-job-status.port';
-import { ListBatchOperationJobsPort } from './ports/list-batch-operation-jobs.port';
-import { ListBatchOperationJobRowsPort } from './ports/list-batch-operation-job-rows.port';
-import { CancelBatchOperationJobPort } from './ports/cancel-batch-operation-job.port';
-=======
->>>>>>> origin2/dev-v1
 import { CreateBatchOperationJobUseCase } from './usecases/create-batch-operation-job.usecase';
 import { ProcessBatchOperationRowUseCase } from './usecases/process-batch-operation-row.usecase';
 import { ValidateBatchOperationUseCase } from './usecases/validate-batch-operation.usecase';
@@ -63,22 +53,6 @@ describe('batch-operation DI wiring', () => {
         },
         BatchOperationHandlerRegistry,
         ProcessBatchOperationRowUseCase,
-<<<<<<< HEAD
-        { provide: ProcessBatchOperationRowPort, useExisting: ProcessBatchOperationRowUseCase },
-        BatchOperationWorker,
-        CreateBatchOperationJobUseCase,
-        { provide: CreateBatchOperationJobPort, useExisting: CreateBatchOperationJobUseCase },
-        ValidateBatchOperationUseCase,
-        { provide: ValidateBatchOperationPort, useExisting: ValidateBatchOperationUseCase },
-        GetBatchOperationJobStatusUseCase,
-        { provide: GetBatchOperationJobStatusPort, useExisting: GetBatchOperationJobStatusUseCase },
-        ListBatchOperationJobsUseCase,
-        { provide: ListBatchOperationJobsPort, useExisting: ListBatchOperationJobsUseCase },
-        ListBatchOperationJobRowsUseCase,
-        { provide: ListBatchOperationJobRowsPort, useExisting: ListBatchOperationJobRowsUseCase },
-        CancelBatchOperationJobUseCase,
-        { provide: CancelBatchOperationJobPort, useExisting: CancelBatchOperationJobUseCase },
-=======
         BatchOperationWorker,
         CreateBatchOperationJobUseCase,
         ValidateBatchOperationUseCase,
@@ -86,7 +60,6 @@ describe('batch-operation DI wiring', () => {
         ListBatchOperationJobsUseCase,
         ListBatchOperationJobRowsUseCase,
         CancelBatchOperationJobUseCase,
->>>>>>> origin2/dev-v1
         { provide: ConfigService, useValue: configStub },
         {
           provide: RequestContextPort,
