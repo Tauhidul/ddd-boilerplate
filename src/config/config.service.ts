@@ -4,6 +4,7 @@ import { ICacheDriver, IMemcachedConfig, IRedisConfig } from './cache.config';
 import { IDatabaseConfig, IDatabaseDriver } from './database.config';
 import { IKafkaConfig, IRabbitMQConfig, ISqsConfig } from './messaging.config';
 import { ISesConfig, ISnsConfig } from './notification.config';
+import { INotificationPipelineConfig } from './notification-pipeline.config';
 import { ILokiConfig, ISentryConfig } from './observability.config';
 import { IOutboxConfig } from './outbox.config';
 import { IBatchOperationConfig } from './batch-operation.config';
@@ -103,6 +104,7 @@ export class ConfigService {
       secretKey: '',
       topicArn: '',
       region: 'us-east-1',
+      webhookSecret: '',
     });
   }
   public getSes(): ISesConfig {
@@ -111,6 +113,23 @@ export class ConfigService {
       secretKey: '',
       address: '',
       region: 'us-east-1',
+      webhookSecret: '',
+    });
+  }
+
+  /** Notification Pipeline Environment Variables */
+  public getNotificationPipeline(): INotificationPipelineConfig {
+    return this.config.get<INotificationPipelineConfig>('notificationPipeline', {
+      maxRecipientsPerRequest: 10_000,
+      syncMessageThreshold: 5,
+      chunkSize: 100,
+      workerConcurrency: 5,
+      chunkAttempts: 3,
+      renderTimeoutMs: 2_000,
+      renderingStuckWindowMs: 600_000,
+      sentNoReceiptWindowMs: 86_400_000,
+      payloadMaxBytes: 65_536,
+      renderedSnapshotMaxBytes: 262_144,
     });
   }
 

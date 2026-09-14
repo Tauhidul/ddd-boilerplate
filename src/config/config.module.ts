@@ -10,6 +10,7 @@ import databaseConfig from './database.config';
 import importConfig from './import.config';
 import messagingConfig from './messaging.config';
 import notificationConfig from './notification.config';
+import notificationPipelineConfig from './notification-pipeline.config';
 import observabilityConfig from './observability.config';
 import outboxConfig from './outbox.config';
 import schedulerConfig from './scheduler.config';
@@ -32,6 +33,7 @@ import storageConfig from './storage.config';
     NestConfigModule.forFeature(securityConfig),
     NestConfigModule.forFeature(outboxConfig),
     NestConfigModule.forFeature(notificationConfig),
+    NestConfigModule.forFeature(notificationPipelineConfig),
     NestConfigModule.forFeature(observabilityConfig),
     NestConfigModule.forFeature(schedulerConfig),
     NestConfigModule.forFeature(batchOperationConfig),
