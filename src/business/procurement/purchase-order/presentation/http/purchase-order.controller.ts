@@ -12,8 +12,12 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PageQuery, normalizePageQuery } from '@shared-kernel/types/pagination';
+import type { RecurringTemplateRecord } from '@platform/recurring/recurring-template.types';
+import { RequestContextPort } from '@platform/context/ports/request-context.port';
 import { AddPurchaseOrderLineUseCase } from '../../application/usecases/add-purchase-order-line.usecase';
 import { CreatePurchaseOrderUseCase } from '../../application/usecases/create-purchase-order.usecase';
+import { CreateRecurringPurchaseOrderUseCase } from '../../application/usecases/create-recurring-purchase-order.usecase';
+import { CreateRecurringFromPurchaseOrderUseCase } from '../../application/usecases/create-recurring-from-purchase-order.usecase';
 import { GetPurchaseOrderUseCase } from '../../application/usecases/get-purchase-order.usecase';
 import { ListPurchaseOrdersUseCase } from '../../application/usecases/list-purchase-orders.usecase';
 import { PurchaseOrderTransitionUseCase } from '../../application/usecases/purchase-order-transition.usecase';
@@ -22,6 +26,10 @@ import { CreatePurchaseOrderDto } from './requests/create-purchase-order.request
 import { AddLineDto } from './requests/add-purchase-order-line.request.dto';
 import { PurchaseOrderQueryDto } from './requests/query-purchase-orders.request.dto';
 import { RejectPurchaseOrderDto } from './requests/reject-purchase-order.request.dto';
+import {
+  CreateRecurringPurchaseOrderDto,
+  CreateRecurringFromPurchaseOrderDto,
+} from './requests/create-recurring-purchase-order.request.dto';
 import {
   GetPurchaseOrderMobileResponseDto,
   type GetPurchaseOrderMobileResponse,
@@ -56,6 +64,9 @@ export class PurchaseOrderController {
     private readonly purchaseOrderTransitionUseCase: PurchaseOrderTransitionUseCase,
     private readonly getPurchaseOrderUseCase: GetPurchaseOrderUseCase,
     private readonly listPurchaseOrdersUseCase: ListPurchaseOrdersUseCase,
+    private readonly createRecurringPurchaseOrderUseCase: CreateRecurringPurchaseOrderUseCase,
+    private readonly createRecurringFromPurchaseOrderUseCase: CreateRecurringFromPurchaseOrderUseCase,
+    private readonly requestContext: RequestContextPort,
   ) {}
 
   @Post()
@@ -64,6 +75,23 @@ export class PurchaseOrderController {
   async create(@Body() dto: CreatePurchaseOrderDto): Promise<ApiResponse<IdResponse>> {
     const id = await this.createPurchaseOrderUseCase.execute({ ...dto });
     return { data: { id: id.toString() }, message: 'Purchase order created' };
+  }
+
+  @Post('recurring')
+  @ApiOperation({ summary: 'Create a recurring purchase order template from new data' })
+  @HttpCode(HttpStatus.CREATED)
+  async createRecurring(
+    @Body() dto: CreateRecurringPurchaseOrderDto,
+  ): Promise<ApiResponse<RecurringTemplateRecord>> {
+    const ctx = this.requestContext.get();
+    const template = await this.createRecurringPurchaseOrderUseCase.execute({
+      ...dto,
+      startDate: dto.startDate ? new Date(dto.startDate) : undefined,
+      endDate: dto.endDate ? new Date(dto.endDate) : undefined,
+      tenantId: ctx?.tenantId,
+      createdBy: ctx?.userId,
+    });
+    return { data: template, message: 'Recurring purchase order template created' };
   }
 
   @Get()
@@ -92,6 +120,25 @@ export class PurchaseOrderController {
       data: purchaseOrder,
       message: 'Purchase order fetched',
     };
+  }
+
+  @Post(':id/recurring')
+  @ApiOperation({ summary: 'Create a recurring template from an existing purchase order' })
+  @HttpCode(HttpStatus.CREATED)
+  async createRecurringFromExisting(
+    @Param('id') id: string,
+    @Body() dto: CreateRecurringFromPurchaseOrderDto,
+  ): Promise<ApiResponse<RecurringTemplateRecord>> {
+    const ctx = this.requestContext.get();
+    const template = await this.createRecurringFromPurchaseOrderUseCase.execute({
+      ...dto,
+      purchaseOrderId: id,
+      startDate: dto.startDate ? new Date(dto.startDate) : undefined,
+      endDate: dto.endDate ? new Date(dto.endDate) : undefined,
+      tenantId: ctx?.tenantId,
+      createdBy: ctx?.userId,
+    });
+    return { data: template, message: 'Recurring purchase order template created' };
   }
 
   @Post(':id/lines')
